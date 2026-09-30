@@ -36,22 +36,24 @@
 
 API должно позволять получить профиль и связанные с ним данные, например:
 
+```
 query {
-profile {
-name
-description
-skills {
-name
+    profile {
+        name
+        description
+        skills {
+            name
+        }
+        experience {
+            company
+            position
+        }
+        projects {
+            name
+        }
+    }
 }
-experience {
-company
-position
-}
-projects {
-name
-}
-}
-}
+```
 
 Конкретную структуру GraphQL API, базы данных и архитектуру приложения выберите самостоятельно.
 

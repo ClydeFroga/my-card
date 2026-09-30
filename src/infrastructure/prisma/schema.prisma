@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Profile {
+  id Int @default(autoincrement()) @id
+  description String
+  name  String
+  links Link[]
+  skills Skill[]
+  experiences Experience[]
+  projects Project[]
+}
+
+model Link {
+  id Int @id @default(autoincrement())
+  url String
+  profileId Int
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model Skill {
+  id Int @id @default(autoincrement())
+  name String @unique
+  profiles Profile[]
+}
+
+model Experience {
+  id Int @id @default(autoincrement())
+  company String
+  position String
+  startedAt DateTime
+  endedAt DateTime?
+  achievements String[]
+  profileId Int
+
+  profile Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id Int @id @default(autoincrement())
+  name String
+  url String
+  profileId Int
+
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}

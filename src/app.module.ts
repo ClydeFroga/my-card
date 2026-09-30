@@ -1,21 +1,29 @@
 import { Module } from '@nestjs/common';
-import { createObserveModule } from '@nestjs/observe';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-
-export const { ObserveModule, ObserveInstrument } = createObserveModule();
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { join } from 'path';
+import { ConfigModule } from '@nestjs/config';
+import { PrismaModule } from './infrastructure/prisma/prisma.module';
+import { ProfileModule } from './modules/profile/profile.module';
 
 @Module({
   imports: [
-    // Distributed tracing, auto-correlated logs, request/job metrics, error
-    // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
-    ObserveModule.forRoot({
-      appKey: 'YOUR_APP_KEY',
-      appSecret: 'YOUR_APP_SECRET',
-      serviceId: 'my-card',
+    ConfigModule.forRoot({ isGlobal: true }),
+    PrismaModule,
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      useFactory: async () => {
+        const { ApolloServerPluginLandingPageLocalDefault } =
+          await import('@apollo/server/plugin/landingPage/default');
+        return {
+          autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
+          sortSchema: true,
+          graphiql: false,
+          plugins: [ApolloServerPluginLandingPageLocalDefault()],
+        };
+      },
     }),
+    ProfileModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
